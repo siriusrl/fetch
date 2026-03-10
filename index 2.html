@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AI Lecture Summarizer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #080c14;
+      --surface: #0e1520;
+      --surface2: #151f30;
+      --border: #1e2d45;
+      --accent: #3b82f6;
+      --accent2: #06b6d4;
+      --red: #ef4444;
+      --green: #22c55e;
+      --text: #e2e8f0;
+      --muted: #64748b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 48px 24px;
+    }
+
+    .container {
+      max-width: 680px;
+      margin: auto;
+    }
+
+    header {
+      margin-bottom: 40px;
+    }
+
+    .label {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      color: var(--accent2);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      font-family: 'Space Mono', monospace;
+      font-size: 26px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.2;
+    }
+
+    h1 span {
+      color: var(--accent);
+    }
+
+    .subtitle {
+      color: var(--muted);
+      margin-top: 8px;
+      font-size: 14px;
+    }
+
+    /* Recorder Card */
+    .recorder-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      margin-bottom: 20px;
+    }
+
+    .recorder-visual {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 28px;
+    }
+
+    .waveform {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      height: 48px;
+    }
+
+    .waveform-bar {
+      width: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      transition: height 0.1s ease, background 0.2s;
+      height: 8px;
+    }
+
+    .waveform.active .waveform-bar {
+      background: var(--accent);
+      animation: wave 0.8s ease-in-out infinite alternate;
+    }
+
+    @keyframes wave {
+      0% { height: 6px; }
+      100% { height: 40px; }
+    }
+
+    .waveform.active .waveform-bar:nth-child(1) { animation-delay: 0.0s; }
+    .waveform.active .waveform-bar:nth-child(2) { animation-delay: 0.1s; }
+    .waveform.active .waveform-bar:nth-child(3) { animation-delay: 0.2s; }
+    .waveform.active .waveform-bar:nth-child(4) { animation-delay: 0.05s; }
+    .waveform.active .waveform-bar:nth-child(5) { animation-delay: 0.15s; }
+    .waveform.active .waveform-bar:nth-child(6) { animation-delay: 0.25s; }
+    .waveform.active .waveform-bar:nth-child(7) { animation-delay: 0.08s; }
+    .waveform.active .waveform-bar:nth-child(8) { animation-delay: 0.18s; }
+    .waveform.active .waveform-bar:nth-child(9) { animation-delay: 0.12s; }
+    .waveform.active .waveform-bar:nth-child(10) { animation-delay: 0.22s; }
+
+    .timer {
+      font-family: 'Space Mono', monospace;
+      font-size: 32px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 0.05em;
+      min-width: 100px;
+      text-align: center;
+    }
+
+    .timer.recording { color: var(--accent); }
+
+    .recorder-controls {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.15s ease;
+    }
+
+    .btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    .btn-record {
+      background: var(--red);
+      color: white;
+    }
+
+    .btn-record:hover:not(:disabled) {
+      background: #dc2626;
+      transform: translateY(-1px);
+    }
+
+    .btn-stop {
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-stop:hover:not(:disabled) {
+      background: var(--border);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+      width: 100%;
+      justify-content: center;
+      padding: 14px 24px;
+      font-size: 15px;
+      border-radius: 10px;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: #2563eb;
+      transform: translateY(-1px);
+    }
+
+    /* Recorded preview */
+    .recorded-preview {
+      margin-top: 20px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      display: none;
+    }
+
+    .recorded-preview.visible { display: block; }
+
+    .preview-label {
+      font-size: 11px;
+      color: var(--muted);
+      font-family: 'Space Mono', monospace;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    audio {
+      width: 100%;
+      height: 36px;
+    }
+
+    /* Divider */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 20px 0;
+      color: var(--muted);
+      font-size: 12px;
+      font-family: 'Space Mono', monospace;
+    }
+
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* Status */
+    .status-bar {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 13px;
+      color: var(--muted);
+      font-family: 'Space Mono', monospace;
+      margin-bottom: 20px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .status-bar.active { color: var(--accent2); border-color: var(--accent2); }
+    .status-bar.success { color: var(--green); border-color: var(--green); }
+    .status-bar.error { color: var(--red); border-color: var(--red); }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+      flex-shrink: 0;
+    }
+
+    .dot.pulse { animation: pulse 1.2s ease-in-out infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+    /* Results */
+    .results { display: none; }
+    .results.visible { display: block; }
+
+    .result-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+
+    .result-card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .result-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--surface2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .result-title {
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .result-body {
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--text);
+    }
+
+    .audio-result audio {
+      margin-top: 0;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="label">AI-Powered</div>
+    <h1>Lecture <span>Summarizer</span></h1>
+    <p class="subtitle">Record your lecture, get an instant summary + transcript.</p>
+  </header>
+
+  <!-- Recorder -->
+  <div class="recorder-card">
+    <div class="recorder-visual">
+      <div class="waveform" id="waveform">
+        <div class="waveform-bar"></div>
+        <div class="waveform-bar"></div>
+        <div class="waveform-bar"></div>
+        <div class="waveform-bar"></div>
+        <div class="waveform-bar"></div>
+        <div class="waveform-bar"></div>
+        <div class="waveform-bar"></div>
+        <div class="waveform-bar"></div>
+        <div class="waveform-bar"></div>
+        <div class="waveform-bar"></div>
+      </div>
+      <div class="timer" id="timer">0:00</div>
+    </div>
+
+    <div class="recorder-controls">
+      <button class="btn btn-record" id="btnRecord" onclick="startRecording()">
+        ⏺ Record
+      </button>
+      <button class="btn btn-stop" id="btnStop" onclick="stopRecording()" disabled>
+        ⏹ Stop
+      </button>
+    </div>
+
+    <div class="recorded-preview" id="recordedPreview">
+      <div class="preview-label">Recorded Audio</div>
+      <audio id="previewAudio" controls></audio>
+    </div>
+
+    <div class="divider">or paste a URL</div>
+
+    <input
+      id="audioUrl"
+      style="width:100%;padding:12px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:16px;"
+      placeholder="https://example.com/lecture.wav"
+      onfocus="this.style.borderColor='var(--accent)'"
+      onblur="this.style.borderColor='var(--border)'"
+    />
+
+    <button class="btn btn-primary" id="btnProcess" onclick="processAudio()" disabled>
+      ✨ Summarize
+    </button>
+  </div>
+
+  <!-- Status -->
+  <div class="status-bar" id="statusBar">
+    <div class="dot"></div>
+    <span id="statusText">Ready — record or paste a URL to begin.</span>
+  </div>
+
+  <!-- Results -->
+  <div class="results" id="results">
+    <div class="result-card">
+      <div class="result-card-header">
+        <div class="result-icon">📝</div>
+        <div class="result-title">Summary</div>
+      </div>
+      <div class="result-body" id="summary"></div>
+    </div>
+
+    <div class="result-card">
+      <div class="result-card-header">
+        <div class="result-icon">📄</div>
+        <div class="result-title">Transcript</div>
+      </div>
+      <div class="result-body" id="transcript"></div>
+    </div>
+
+    <div class="result-card audio-result">
+      <div class="result-card-header">
+        <div class="result-icon">🔊</div>
+        <div class="result-title">Generated Audio</div>
+      </div>
+      <audio id="audioOutput" controls></audio>
+    </div>
+  </div>
+</div>
+
+<script>
+  let mediaRecorder = null;
+  let audioChunks = [];
+  let recordedBlob = null;
+  let timerInterval = null;
+  let seconds = 0;
+
+  // --- Timer ---
+  function updateTimer() {
+    seconds++;
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    document.getElementById('timer').textContent = `${m}:${s.toString().padStart(2,'0')}`;
+  }
+
+  // --- Recording ---
+  async function startRecording() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      audioChunks = [];
+      mediaRecorder = new MediaRecorder(stream);
+
+      mediaRecorder.ondataavailable = e => {
+        if (e.data.size > 0) audioChunks.push(e.data);
+      };
+
+      mediaRecorder.onstop = async () => {
+        recordedBlob = new Blob(audioChunks, { type: 'audio/wav' });
+        const url = URL.createObjectURL(recordedBlob);
+        document.getElementById('previewAudio').src = url;
+        document.getElementById('recordedPreview').classList.add('visible');
+        document.getElementById('audioUrl').value = '';
+
+        // Upload automatically
+        setStatus('active', '⬆ Uploading your recording...');
+        const uploaded = await uploadToUguu(recordedBlob);
+        if (uploaded) {
+          document.getElementById('audioUrl').value = uploaded;
+          setStatus('success', '✅ Uploaded! Ready to summarize.');
+          document.getElementById('btnProcess').disabled = false;
+        } else {
+          setStatus('error', '❌ Upload failed. Try pasting a URL manually.');
+        }
+
+        // Stop microphone
+        stream.getTracks().forEach(t => t.stop());
+      };
+
+      mediaRecorder.start();
+      seconds = 0;
+      timerInterval = setInterval(updateTimer, 1000);
+
+      document.getElementById('timer').classList.add('recording');
+      document.getElementById('waveform').classList.add('active');
+      document.getElementById('btnRecord').disabled = true;
+      document.getElementById('btnStop').disabled = false;
+      document.getElementById('btnProcess').disabled = true;
+      setStatus('active', '🔴 Recording...');
+    } catch (err) {
+      setStatus('error', '❌ Mic access denied. Please allow microphone.');
+    }
+  }
+
+  function stopRecording() {
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+      mediaRecorder.stop();
+      clearInterval(timerInterval);
+      document.getElementById('timer').classList.remove('recording');
+      document.getElementById('waveform').classList.remove('active');
+      document.getElementById('btnRecord').disabled = false;
+      document.getElementById('btnStop').disabled = true;
+    }
+  }
+
+  // --- Upload to Uguu ---
+  async function uploadToUguu(blob) {
+    try {
+      const formData = new FormData();
+      formData.append('file', blob, 'recording.wav');
+      const res = await fetch('https://tmpfiles.org/api/v1/upload', { method: 'POST', body: formData });
+      const data = await res.json();
+      // tmpfiles returns a page URL like https://tmpfiles.org/123/recording.wav
+      // convert to direct download URL
+      const pageUrl = data?.data?.url;
+      if (!pageUrl) return null;
+      return pageUrl.replace('tmpfiles.org/', 'tmpfiles.org/dl/');
+    } catch (e) {
+      console.error('Upload error:', e);
+      return null;
+    }
+  }
+
+  // --- Process ---
+  async function processAudio() {
+    const audioUrl = document.getElementById('audioUrl').value.trim();
+    if (!audioUrl) {
+      setStatus('error', '❌ No audio URL found. Record something first.');
+      return;
+    }
+
+    setStatus('active', '⏳ Processing audio... this may take a moment.', true);
+    document.getElementById('btnProcess').disabled = true;
+    document.getElementById('results').classList.remove('visible');
+
+    try {
+      const webhookURL = "https://hook.eu1.make.com/foevhvrk28why9jksdvh12ftg9cr6blq";
+      const response = await fetch(webhookURL + "?audio_url=" + encodeURIComponent(audioUrl));
+      const data = await response.json();
+
+      document.getElementById('summary').textContent = data.summary || 'No summary returned.';
+      document.getElementById('transcript').textContent = data.transcript || 'No transcript returned.';
+      if (data.audio_url) document.getElementById('audioOutput').src = data.audio_url;
+
+      document.getElementById('results').classList.add('visible');
+      setStatus('success', '✅ Done! Summary and transcript ready.');
+    } catch (err) {
+      setStatus('error', '❌ Error: ' + err.message);
+      console.error(err);
+    }
+
+    document.getElementById('btnProcess').disabled = false;
+  }
+
+  // --- Allow manual URL input to enable button ---
+  document.getElementById('audioUrl').addEventListener('input', function() {
+    document.getElementById('btnProcess').disabled = !this.value.trim();
+  });
+
+  // --- Status helper ---
+  function setStatus(type, text, pulse = false) {
+    const bar = document.getElementById('statusBar');
+    const dot = bar.querySelector('.dot');
+    bar.className = 'status-bar ' + (type || '');
+    dot.className = 'dot' + (pulse ? ' pulse' : '');
+    document.getElementById('statusText').textContent = text;
+  }
+</script>
+
+</body>
+</html>
