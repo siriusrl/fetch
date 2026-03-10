@@ -483,9 +483,13 @@
     try {
       const formData = new FormData();
       formData.append('file', blob, 'recording.wav');
-      const res = await fetch('https://0x0.st', { method: 'POST', body: formData });
-      const url = await res.text();
-      return url.trim() || null;
+      const res = await fetch('https://tmpfiles.org/api/v1/upload', { method: 'POST', body: formData });
+      const data = await res.json();
+      // tmpfiles returns a page URL like https://tmpfiles.org/123/recording.wav
+      // convert to direct download URL
+      const pageUrl = data?.data?.url;
+      if (!pageUrl) return null;
+      return pageUrl.replace('tmpfiles.org/', 'tmpfiles.org/dl/');
     } catch (e) {
       console.error('Upload error:', e);
       return null;
