@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>AI Lecture Summarizer</title>
+  <title>AI Lecture Study Assistant</title>
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
   <style>
@@ -15,6 +15,7 @@
       --accent2: #06b6d4;
       --red: #ef4444;
       --green: #22c55e;
+      --yellow: #f59e0b;
       --text: #e2e8f0;
       --muted: #64748b;
     }
@@ -29,14 +30,9 @@
       padding: 48px 24px;
     }
 
-    .container {
-      max-width: 680px;
-      margin: auto;
-    }
+    .container { max-width: 680px; margin: auto; }
 
-    header {
-      margin-bottom: 40px;
-    }
+    header { margin-bottom: 40px; }
 
     .label {
       font-family: 'Space Mono', monospace;
@@ -55,17 +51,10 @@
       line-height: 1.2;
     }
 
-    h1 span {
-      color: var(--accent);
-    }
+    h1 span { color: var(--accent); }
 
-    .subtitle {
-      color: var(--muted);
-      margin-top: 8px;
-      font-size: 14px;
-    }
+    .subtitle { color: var(--muted); margin-top: 8px; font-size: 14px; }
 
-    /* Recorder Card */
     .recorder-card {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -82,19 +71,14 @@
       margin-bottom: 28px;
     }
 
-    .waveform {
-      display: flex;
-      align-items: center;
-      gap: 3px;
-      height: 48px;
-    }
+    .waveform { display: flex; align-items: center; gap: 3px; height: 48px; }
 
     .waveform-bar {
       width: 4px;
       background: var(--border);
       border-radius: 2px;
-      transition: height 0.1s ease, background 0.2s;
       height: 8px;
+      transition: height 0.1s ease, background 0.2s;
     }
 
     .waveform.active .waveform-bar {
@@ -102,10 +86,7 @@
       animation: wave 0.8s ease-in-out infinite alternate;
     }
 
-    @keyframes wave {
-      0% { height: 6px; }
-      100% { height: 40px; }
-    }
+    @keyframes wave { 0% { height: 6px; } 100% { height: 40px; } }
 
     .waveform.active .waveform-bar:nth-child(1) { animation-delay: 0.0s; }
     .waveform.active .waveform-bar:nth-child(2) { animation-delay: 0.1s; }
@@ -130,11 +111,7 @@
 
     .timer.recording { color: var(--accent); }
 
-    .recorder-controls {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-    }
+    .recorder-controls { display: flex; gap: 12px; justify-content: center; }
 
     .btn {
       display: inline-flex;
@@ -150,31 +127,11 @@
       transition: all 0.15s ease;
     }
 
-    .btn:disabled {
-      opacity: 0.35;
-      cursor: not-allowed;
-    }
-
-    .btn-record {
-      background: var(--red);
-      color: white;
-    }
-
-    .btn-record:hover:not(:disabled) {
-      background: #dc2626;
-      transform: translateY(-1px);
-    }
-
-    .btn-stop {
-      background: var(--surface2);
-      color: var(--text);
-      border: 1px solid var(--border);
-    }
-
-    .btn-stop:hover:not(:disabled) {
-      background: var(--border);
-      transform: translateY(-1px);
-    }
+    .btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .btn-record { background: var(--red); color: white; }
+    .btn-record:hover:not(:disabled) { background: #dc2626; transform: translateY(-1px); }
+    .btn-stop { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+    .btn-stop:hover:not(:disabled) { background: var(--border); transform: translateY(-1px); }
 
     .btn-primary {
       background: var(--accent);
@@ -186,12 +143,8 @@
       border-radius: 10px;
     }
 
-    .btn-primary:hover:not(:disabled) {
-      background: #2563eb;
-      transform: translateY(-1px);
-    }
+    .btn-primary:hover:not(:disabled) { background: #2563eb; transform: translateY(-1px); }
 
-    /* Recorded preview */
     .recorded-preview {
       margin-top: 20px;
       background: var(--surface2);
@@ -212,12 +165,8 @@
       margin-bottom: 8px;
     }
 
-    audio {
-      width: 100%;
-      height: 36px;
-    }
+    audio { width: 100%; height: 36px; }
 
-    /* Divider */
     .divider {
       display: flex;
       align-items: center;
@@ -228,14 +177,8 @@
       font-family: 'Space Mono', monospace;
     }
 
-    .divider::before, .divider::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--border);
-    }
+    .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
-    /* Status */
     .status-bar {
       background: var(--surface2);
       border: 1px solid var(--border);
@@ -255,20 +198,43 @@
     .status-bar.success { color: var(--green); border-color: var(--green); }
     .status-bar.error { color: var(--red); border-color: var(--red); }
 
-    .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: currentColor;
-      flex-shrink: 0;
-    }
-
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
     .dot.pulse { animation: pulse 1.2s ease-in-out infinite; }
     @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-    /* Results */
     .results { display: none; }
     .results.visible { display: block; }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0;
+    }
+
+    .tab {
+      padding: 10px 18px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: all 0.15s;
+      font-family: 'DM Sans', sans-serif;
+      background: none;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+    }
+
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
 
     .result-card {
       background: var(--surface);
@@ -278,57 +244,84 @@
       margin-bottom: 16px;
     }
 
-    .result-card-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 16px;
-    }
-
-    .result-icon {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      background: var(--surface2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
-    }
-
-    .result-title {
-      font-family: 'Space Mono', monospace;
-      font-size: 12px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
-
-
-    .result-body ul, .result-body ol {
-      padding-left: 20px;
-      margin-top: 8px;
-    }
-    .result-body li {
-      margin-bottom: 6px;
-      line-height: 1.6;
-    }
-    .result-body strong {
-      color: #fff;
-      font-weight: 600;
-    }
-    .result-body p {
-      margin-bottom: 10px;
-    }
     .result-body {
       font-size: 14px;
       line-height: 1.7;
       color: var(--text);
     }
 
-    .audio-result audio {
-      margin-top: 0;
+    .result-body ul, .result-body ol { padding-left: 20px; margin-top: 8px; }
+    .result-body li { margin-bottom: 6px; line-height: 1.6; }
+    .result-body strong { color: #fff; font-weight: 600; }
+    .result-body p { margin-bottom: 10px; }
+
+    /* Flashcards */
+    .flashcard-grid { display: flex; flex-direction: column; gap: 12px; }
+
+    .flashcard {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 20px;
+      cursor: pointer;
+      transition: border-color 0.15s;
     }
+
+    .flashcard:hover { border-color: var(--accent); }
+
+    .flashcard-question {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .flashcard-answer {
+      font-size: 13px;
+      color: var(--accent2);
+      display: none;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+      line-height: 1.6;
+    }
+
+    .flashcard.revealed .flashcard-answer { display: block; }
+
+    .flashcard-hint {
+      font-size: 11px;
+      color: var(--muted);
+      font-family: 'Space Mono', monospace;
+      margin-top: 6px;
+    }
+
+    .flashcard.revealed .flashcard-hint { display: none; }
+
+    /* Exam Tips */
+    .exam-tips { display: flex; flex-direction: column; gap: 10px; }
+
+    .exam-tip {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+
+    .tip-number {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      color: var(--yellow);
+      background: rgba(245, 158, 11, 0.1);
+      border-radius: 6px;
+      padding: 2px 8px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .tip-text { font-size: 14px; line-height: 1.6; color: var(--text); }
   </style>
 </head>
 <body>
@@ -336,11 +329,10 @@
 <div class="container">
   <header>
     <div class="label">AI-Powered</div>
-    <h1>Lecture <span>Summarizer</span></h1>
-    <p class="subtitle">Record your lecture, get an instant summary + transcript.</p>
+    <h1>Lecture <span>Study Assistant</span></h1>
+    <p class="subtitle">Record your lecture — get a summary, flashcards, and exam tips instantly.</p>
   </header>
 
-  <!-- Recorder -->
   <div class="recorder-card">
     <div class="recorder-visual">
       <div class="waveform" id="waveform">
@@ -359,12 +351,8 @@
     </div>
 
     <div class="recorder-controls">
-      <button class="btn btn-record" id="btnRecord" onclick="startRecording()">
-        ⏺ Record
-      </button>
-      <button class="btn btn-stop" id="btnStop" onclick="stopRecording()" disabled>
-        ⏹ Stop
-      </button>
+      <button class="btn btn-record" id="btnRecord" onclick="startRecording()">⏺ Record</button>
+      <button class="btn btn-stop" id="btnStop" onclick="stopRecording()" disabled>⏹ Stop</button>
     </div>
 
     <div class="recorded-preview" id="recordedPreview">
@@ -383,40 +371,41 @@
     />
 
     <button class="btn btn-primary" id="btnProcess" onclick="processAudio()" disabled>
-      ✨ Summarize
+      ✨ Analyse Lecture
     </button>
   </div>
 
-  <!-- Status -->
   <div class="status-bar" id="statusBar">
     <div class="dot"></div>
     <span id="statusText">Ready — record or paste a URL to begin.</span>
   </div>
 
-  <!-- Results -->
   <div class="results" id="results">
-    <div class="result-card">
-      <div class="result-card-header">
-        <div class="result-icon">📝</div>
-        <div class="result-title">Summary</div>
-      </div>
-      <div class="result-body" id="summary"></div>
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('summary')">📝 Summary</button>
+      <button class="tab" onclick="switchTab('flashcards')">🃏 Flashcards</button>
+      <button class="tab" onclick="switchTab('examtips')">🎯 Exam Tips</button>
+      <button class="tab" onclick="switchTab('transcript')">📄 Transcript</button>
     </div>
 
-    <div class="result-card">
-      <div class="result-card-header">
-        <div class="result-icon">📄</div>
-        <div class="result-title">Transcript</div>
+    <div class="tab-panel active" id="panel-summary">
+      <div class="result-card">
+        <div class="result-body" id="summary"></div>
       </div>
-      <div class="result-body" id="transcript"></div>
     </div>
 
-    <div class="result-card audio-result">
-      <div class="result-card-header">
-        <div class="result-icon">🔊</div>
-        <div class="result-title">Generated Audio</div>
+    <div class="tab-panel" id="panel-flashcards">
+      <div class="flashcard-grid" id="flashcards"></div>
+    </div>
+
+    <div class="tab-panel" id="panel-examtips">
+      <div class="exam-tips" id="examtips"></div>
+    </div>
+
+    <div class="tab-panel" id="panel-transcript">
+      <div class="result-card">
+        <div class="result-body" id="transcript"></div>
       </div>
-      <audio id="audioOutput" controls></audio>
     </div>
   </div>
 </div>
@@ -428,7 +417,6 @@
   let timerInterval = null;
   let seconds = 0;
 
-  // --- Timer ---
   function updateTimer() {
     seconds++;
     const m = Math.floor(seconds / 60);
@@ -436,43 +424,32 @@
     document.getElementById('timer').textContent = `${m}:${s.toString().padStart(2,'0')}`;
   }
 
-  // --- Recording ---
   async function startRecording() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       audioChunks = [];
       mediaRecorder = new MediaRecorder(stream);
-
-      mediaRecorder.ondataavailable = e => {
-        if (e.data.size > 0) audioChunks.push(e.data);
-      };
-
+      mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
       mediaRecorder.onstop = async () => {
         recordedBlob = new Blob(audioChunks, { type: 'audio/wav' });
         const url = URL.createObjectURL(recordedBlob);
         document.getElementById('previewAudio').src = url;
         document.getElementById('recordedPreview').classList.add('visible');
         document.getElementById('audioUrl').value = '';
-
-        // Upload automatically
         setStatus('active', '⬆ Uploading your recording...');
-        const uploaded = await uploadToUguu(recordedBlob);
+        const uploaded = await uploadAudio(recordedBlob);
         if (uploaded) {
           document.getElementById('audioUrl').value = uploaded;
-          setStatus('success', '✅ Uploaded! Ready to summarize.');
+          setStatus('success', '✅ Uploaded! Ready to analyse.');
           document.getElementById('btnProcess').disabled = false;
         } else {
           setStatus('error', '❌ Upload failed. Try pasting a URL manually.');
         }
-
-        // Stop microphone
         stream.getTracks().forEach(t => t.stop());
       };
-
       mediaRecorder.start();
       seconds = 0;
       timerInterval = setInterval(updateTimer, 1000);
-
       document.getElementById('timer').classList.add('recording');
       document.getElementById('waveform').classList.add('active');
       document.getElementById('btnRecord').disabled = true;
@@ -495,15 +472,12 @@
     }
   }
 
-  // --- Upload to Uguu ---
-  async function uploadToUguu(blob) {
+  async function uploadAudio(blob) {
     try {
       const formData = new FormData();
       formData.append('file', blob, 'recording.wav');
       const res = await fetch('https://tmpfiles.org/api/v1/upload', { method: 'POST', body: formData });
       const data = await res.json();
-      // tmpfiles returns a page URL like https://tmpfiles.org/123/recording.wav
-      // convert to direct download URL
       const pageUrl = data?.data?.url;
       if (!pageUrl) return null;
       return pageUrl.replace('tmpfiles.org/', 'tmpfiles.org/dl/');
@@ -513,15 +487,11 @@
     }
   }
 
-  // --- Process ---
   async function processAudio() {
     const audioUrl = document.getElementById('audioUrl').value.trim();
-    if (!audioUrl) {
-      setStatus('error', '❌ No audio URL found. Record something first.');
-      return;
-    }
+    if (!audioUrl) { setStatus('error', '❌ No audio URL found. Record something first.'); return; }
 
-    setStatus('active', '⏳ Processing audio... this may take a moment.', true);
+    setStatus('active', '⏳ Analysing lecture... this may take a moment.', true);
     document.getElementById('btnProcess').disabled = true;
     document.getElementById('results').classList.remove('visible');
 
@@ -529,15 +499,60 @@
       const webhookURL = "https://hook.eu1.make.com/foevhvrk28why9jksdvh12ftg9cr6blq";
       const response = await fetch(webhookURL + "?audio_url=" + encodeURIComponent(audioUrl));
       const raw = await response.text();
-      const cleaned = raw.replace(/[\u0000-\u001F\u007F]/g, m => (m === "\n" || m === "\r" || m === "\t") ? " " : "");
+      const cleaned = raw.replace(/[\u0000-\u001F\u007F]/g, m =>
+        (m === '\n' || m === '\r' || m === '\t') ? ' ' : ''
+      );
       const data = JSON.parse(cleaned);
 
-      document.getElementById('summary').innerHTML = marked.parse(data.summary || 'No summary returned.');
+      // Parse groq_output which is a JSON string itself
+      let groq = {};
+      try {
+        groq = JSON.parse(data.groq_output);
+      } catch(e) {
+        groq = { summary: data.groq_output, flashcards: [], exam_tips: [] };
+      }
+
+      // Summary
+      document.getElementById('summary').innerHTML = marked.parse(groq.summary || 'No summary returned.');
+
+      // Transcript
       document.getElementById('transcript').textContent = data.transcript || 'No transcript returned.';
-      if (data.audio_data) document.getElementById('audioOutput').src = 'data:audio/mpeg;base64,' + data.audio_data;
+
+      // Flashcards
+      const fcContainer = document.getElementById('flashcards');
+      fcContainer.innerHTML = '';
+      if (groq.flashcards && groq.flashcards.length) {
+        groq.flashcards.forEach(fc => {
+          const div = document.createElement('div');
+          div.className = 'flashcard';
+          div.innerHTML = `
+            <div class="flashcard-question">Q: ${fc.question}</div>
+            <div class="flashcard-hint">Tap to reveal answer</div>
+            <div class="flashcard-answer">A: ${fc.answer}</div>
+          `;
+          div.onclick = () => div.classList.toggle('revealed');
+          fcContainer.appendChild(div);
+        });
+      } else {
+        fcContainer.innerHTML = '<div class="result-card"><div class="result-body">No flashcards generated.</div></div>';
+      }
+
+      // Exam Tips
+      const tipsContainer = document.getElementById('examtips');
+      tipsContainer.innerHTML = '';
+      if (groq.exam_tips && groq.exam_tips.length) {
+        groq.exam_tips.forEach((tip, i) => {
+          const div = document.createElement('div');
+          div.className = 'exam-tip';
+          div.innerHTML = `<span class="tip-number">TIP ${i + 1}</span><span class="tip-text">${tip}</span>`;
+          tipsContainer.appendChild(div);
+        });
+      } else {
+        tipsContainer.innerHTML = '<div class="result-card"><div class="result-body">No exam tips generated.</div></div>';
+      }
 
       document.getElementById('results').classList.add('visible');
-      setStatus('success', '✅ Done! Summary and transcript ready.');
+      setStatus('success', '✅ Done! Check your summary, flashcards and exam tips.');
     } catch (err) {
       setStatus('error', '❌ Error: ' + err.message);
       console.error(err);
@@ -546,12 +561,19 @@
     document.getElementById('btnProcess').disabled = false;
   }
 
-  // --- Allow manual URL input to enable button ---
+  function switchTab(name) {
+    document.querySelectorAll('.tab').forEach((t, i) => {
+      t.classList.toggle('active', ['summary','flashcards','examtips','transcript'][i] === name);
+    });
+    document.querySelectorAll('.tab-panel').forEach(p => {
+      p.classList.toggle('active', p.id === 'panel-' + name);
+    });
+  }
+
   document.getElementById('audioUrl').addEventListener('input', function() {
     document.getElementById('btnProcess').disabled = !this.value.trim();
   });
 
-  // --- Status helper ---
   function setStatus(type, text, pulse = false) {
     const bar = document.getElementById('statusBar');
     const dot = bar.querySelector('.dot');
