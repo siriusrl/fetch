@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>AI Lecture Summarizer</title>
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
   <style>
     :root {
       --bg: #080c14;
@@ -303,6 +304,22 @@
       color: var(--muted);
     }
 
+
+    .result-body ul, .result-body ol {
+      padding-left: 20px;
+      margin-top: 8px;
+    }
+    .result-body li {
+      margin-bottom: 6px;
+      line-height: 1.6;
+    }
+    .result-body strong {
+      color: #fff;
+      font-weight: 600;
+    }
+    .result-body p {
+      margin-bottom: 10px;
+    }
     .result-body {
       font-size: 14px;
       line-height: 1.7;
@@ -515,9 +532,9 @@
       const cleaned = raw.replace(/[\u0000-\u001F\u007F]/g, m => (m === "\n" || m === "\r" || m === "\t") ? " " : "");
       const data = JSON.parse(cleaned);
 
-      document.getElementById('summary').textContent = data.summary || 'No summary returned.';
+      document.getElementById('summary').innerHTML = marked.parse(data.summary || 'No summary returned.');
       document.getElementById('transcript').textContent = data.transcript || 'No transcript returned.';
-      if (data.audio_url) document.getElementById('audioOutput').src = data.audio_url;
+      if (data.audio_data) document.getElementById('audioOutput').src = 'data:audio/mpeg;base64,' + data.audio_data;
 
       document.getElementById('results').classList.add('visible');
       setStatus('success', '✅ Done! Summary and transcript ready.');
