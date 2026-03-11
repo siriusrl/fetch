@@ -499,24 +499,28 @@
       const webhookURL = "https://hook.eu1.make.com/foevhvrk28why9jksdvh12ftg9cr6blq";
       const response = await fetch(webhookURL + "?audio_url=" + encodeURIComponent(audioUrl));
       const raw = await response.text();
-      const cleaned = raw.replace(/[\u0000-\u001F\u007F]/g, m =>
-        (m === '\n' || m === '\r' || m === '\t') ? ' ' : ''
-      );
-      const data = JSON.parse(cleaned);
 
-      // Parse groq_output which is a JSON string itself
+      // Safely extract fields without full JSON parse (avoids issues with nested JSON)
+      const getField = (str, key) => {
+        const match = str.match(new RegExp('"' + key + '"\\s*:\\s*"((?:[^"\\\\]|\\\\.)*)"', 's'));
+        return match ? match[1].replace(/\\n/g, ' ').replace(/\\"/g, '"') : '';
+      };
+
+      const transcriptText = getField(raw, 'transcript');
+      const groqRaw = getField(raw, 'groq_output');
+
       let groq = {};
       try {
-        groq = JSON.parse(data.groq_output);
+        groq = JSON.parse(groqRaw);
       } catch(e) {
-        groq = { summary: data.groq_output, flashcards: [], exam_tips: [] };
+        groq = { summary: groqRaw, flashcards: [], exam_tips: [] };
       }
 
       // Summary
       document.getElementById('summary').innerHTML = marked.parse(groq.summary || 'No summary returned.');
 
       // Transcript
-      document.getElementById('transcript').textContent = data.transcript || 'No transcript returned.';
+      document.getElementById('transcript').textContent = transcriptText || 'No transcript returned.';
 
       // Flashcards
       const fcContainer = document.getElementById('flashcards');
