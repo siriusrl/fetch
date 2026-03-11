@@ -500,24 +500,39 @@
       const response = await fetch(webhookURL + "?audio_url=" + encodeURIComponent(audioUrl));
       const raw = await response.text();
 
-      // Safely extract fields without full JSON parse (avoids issues with nested JSON)
-      const getField = (str, key) => {
-        const match = str.match(new RegExp('"' + key + '"\\s*:\\s*"((?:[^"\\\\]|\\\\.)*)"', 's'));
-        return match ? match[1].replace(/\\n/g, ' ').replace(/\\"/g, '"') : '';
-      };
+      // Extract transcript with regex
+      const transcriptMatch = raw.match(/"transcript"\s*:\s*"((?:[^"\\]|\\.)*)"/s);
+      const transcriptText = transcriptMatch ? transcriptMatch[1] : '';
 
-      const transcriptText = getField(raw, 'transcript');
-      const groqRaw = getField(raw, 'groq_output');
-
+      // Extract groq_output — it's a JSON object embedded as a string value
+      // Find the value between "groq_output": " ... " carefully
+      const groqStart = raw.indexOf('"groq_output"');
       let groq = {};
-      try {
-        groq = JSON.parse(groqRaw);
-      } catch(e) {
-        groq = { summary: groqRaw, flashcards: [], exam_tips: [] };
+      if (groqStart !== -1) {
+        // Find the first { after groq_output key
+        const objStart = raw.indexOf('{', groqStart);
+        // Find matching closing }
+        let depth = 0, objEnd = -1;
+        for (let i = objStart; i < raw.length; i++) {
+          if (raw[i] === '{') depth++;
+          else if (raw[i] === '}') { depth--; if (depth === 0) { objEnd = i; break; } }
+        }
+        if (objStart !== -1 && objEnd !== -1) {
+          try {
+            groq = JSON.parse(raw.slice(objStart, objEnd + 1));
+          } catch(e) {
+            console.error('Groq parse error', e);
+            groq = { summary: raw.slice(objStart, objEnd + 1), flashcards: [], exam_tips: [] };
+          }
+        }
       }
 
-      // Summary
-      document.getElementById('summary').innerHTML = marked.parse(groq.summary || 'No summary returned.');
+      // Summary — handle both string and array formats
+      let summaryContent = groq.summary || 'No summary returned.';
+      if (Array.isArray(summaryContent)) {
+        summaryContent = summaryContent.map(s => '- ' + s).join('\n');
+      }
+      document.getElementById('summary').innerHTML = marked.parse(summaryContent);
 
       // Transcript
       document.getElementById('transcript').textContent = transcriptText || 'No transcript returned.';
