@@ -511,7 +511,9 @@
     try {
       const webhookURL = "https://hook.eu1.make.com/foevhvrk28why9jksdvh12ftg9cr6blq";
       const response = await fetch(webhookURL + "?audio_url=" + encodeURIComponent(audioUrl));
-      const data = await response.json();
+      const raw = await response.text();
+      const cleaned = raw.replace(/[\u0000-\u001F\u007F]/g, m => (m === "\n" || m === "\r" || m === "\t") ? " " : "");
+      const data = JSON.parse(cleaned);
 
       document.getElementById('summary').textContent = data.summary || 'No summary returned.';
       document.getElementById('transcript').textContent = data.transcript || 'No transcript returned.';
