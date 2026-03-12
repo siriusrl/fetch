@@ -3,71 +3,210 @@
 <head>
   <meta charset="UTF-8" />
   <title>AI Lecture Study Assistant</title>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
   <style>
     :root {
-      --bg: #080c14;
-      --surface: #0e1520;
-      --surface2: #151f30;
-      --border: #1e2d45;
-      --accent: #3b82f6;
-      --accent2: #06b6d4;
-      --red: #ef4444;
-      --green: #22c55e;
-      --yellow: #f59e0b;
-      --text: #e2e8f0;
-      --muted: #64748b;
+      --bg: #f7f5f2;
+      --bg2: #f0ede8;
+      --surface: #ffffff;
+      --surface2: #f7f5f2;
+      --border: #e4ddd5;
+      --border2: #d5ccc2;
+      --ink: #1c1917;
+      --ink2: #44403c;
+      --muted: #a8a29e;
+      --rose: #9f3a5a;
+      --rose-light: #fdf2f5;
+      --rose-mid: #e8c0cc;
+      --teal: #2a7c6f;
+      --teal-light: #f0f9f7;
+      --teal-mid: #a8d5cf;
+      --indigo: #3d4f7c;
+      --indigo-light: #f0f2f9;
+      --indigo-mid: #b8c2e0;
+      --amber: #92400e;
+      --amber-light: #fef8f0;
+      --red: #c0392b;
+      --red-light: #fdf3f2;
+      --green: #276749;
+      --green-light: #f0f9f4;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: 'DM Sans', sans-serif;
+      font-family: 'Jost', sans-serif;
       background: var(--bg);
-      color: var(--text);
+      color: var(--ink);
       min-height: 100vh;
-      padding: 48px 24px;
+      padding: 0;
     }
 
-    .container { max-width: 680px; margin: auto; }
+    /* Top navigation bar */
+    .topnav {
+      background: var(--ink);
+      padding: 0 48px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
 
-    header { margin-bottom: 40px; }
+    .topnav-brand {
+      font-family: 'Libre Baskerville', serif;
+      font-size: 16px;
+      color: #fff;
+      letter-spacing: 0.04em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
 
-    .label {
-      font-family: 'Space Mono', monospace;
+    .topnav-brand::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--teal);
+      box-shadow: 0 0 8px var(--teal);
+    }
+
+    .topnav-tag {
       font-size: 11px;
       letter-spacing: 0.15em;
-      color: var(--accent2);
       text-transform: uppercase;
-      margin-bottom: 8px;
+      color: #6b6459;
     }
 
-    h1 {
-      font-family: 'Space Mono', monospace;
-      font-size: 26px;
-      font-weight: 700;
-      color: #fff;
+    /* Hero */
+    .hero {
+      background: var(--ink);
+      padding: 56px 48px 64px;
+      position: relative;
+      overflow: hidden;
+      animation: fadeUp 0.6s ease both;
+    }
+
+    .hero-bg-circle {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .hero-bg-circle.c1 {
+      width: 400px; height: 400px;
+      top: -150px; right: -80px;
+      background: radial-gradient(circle, #2a7c6f15, transparent 70%);
+    }
+
+    .hero-bg-circle.c2 {
+      width: 300px; height: 300px;
+      bottom: -100px; left: 30%;
+      background: radial-gradient(circle, #9f3a5a10, transparent 70%);
+    }
+
+    .hero-label {
+      font-size: 10px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .hero-label::after {
+      content: '';
+      width: 32px; height: 1px;
+      background: var(--teal);
+      opacity: 0.5;
+    }
+
+    .hero h1 {
+      font-family: 'Libre Baskerville', serif;
+      font-size: clamp(32px, 5vw, 50px);
+      font-weight: 400;
+      color: #f5f0eb;
       line-height: 1.2;
+      max-width: 560px;
     }
 
-    h1 span { color: var(--accent); }
+    .hero h1 em {
+      font-style: italic;
+      color: var(--teal-mid);
+    }
 
-    .subtitle { color: var(--muted); margin-top: 8px; font-size: 14px; }
+    .hero-sub {
+      margin-top: 14px;
+      font-size: 14px;
+      color: #6b6459;
+      font-weight: 300;
+      max-width: 420px;
+      line-height: 1.7;
+    }
 
+    .hero-divider {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--teal), var(--rose), transparent);
+      opacity: 0.4;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Main */
+    .main {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+      animation: fadeUp 0.6s ease 0.1s both;
+    }
+
+    /* Section label */
+    .section-label {
+      font-size: 10px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* Recorder card */
     .recorder-card {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 16px;
       padding: 32px;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 16px rgba(28,25,23,0.04);
+      transition: box-shadow 0.2s;
     }
+
+    .recorder-card:hover { box-shadow: 0 4px 32px rgba(28,25,23,0.08); }
 
     .recorder-visual {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 20px;
+      gap: 24px;
       margin-bottom: 28px;
     }
 
@@ -75,14 +214,14 @@
 
     .waveform-bar {
       width: 4px;
-      background: var(--border);
+      background: var(--border2);
       border-radius: 2px;
       height: 8px;
       transition: height 0.1s ease, background 0.2s;
     }
 
     .waveform.active .waveform-bar {
-      background: var(--accent);
+      background: var(--rose);
       animation: wave 0.8s ease-in-out infinite alternate;
     }
 
@@ -100,55 +239,76 @@
     .waveform.active .waveform-bar:nth-child(10) { animation-delay: 0.22s; }
 
     .timer {
-      font-family: 'Space Mono', monospace;
-      font-size: 32px;
+      font-family: 'Libre Baskerville', serif;
+      font-size: 36px;
       font-weight: 700;
-      color: #fff;
+      color: var(--ink);
       letter-spacing: 0.05em;
       min-width: 100px;
       text-align: center;
     }
 
-    .timer.recording { color: var(--accent); }
+    .timer.recording { color: var(--rose); }
 
-    .recorder-controls { display: flex; gap: 12px; justify-content: center; }
+    .recorder-controls { display: flex; gap: 10px; justify-content: center; }
 
     .btn {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 12px 24px;
-      border-radius: 10px;
+      padding: 11px 22px;
+      border-radius: 8px;
       border: none;
       cursor: pointer;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 14px;
+      font-family: 'Jost', sans-serif;
+      font-size: 13px;
       font-weight: 500;
+      letter-spacing: 0.03em;
       transition: all 0.15s ease;
     }
 
     .btn:disabled { opacity: 0.35; cursor: not-allowed; }
-    .btn-record { background: var(--red); color: white; }
-    .btn-record:hover:not(:disabled) { background: #dc2626; transform: translateY(-1px); }
-    .btn-stop { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
-    .btn-stop:hover:not(:disabled) { background: var(--border); transform: translateY(-1px); }
+
+    .btn-record {
+      background: var(--rose);
+      color: white;
+    }
+    .btn-record:hover:not(:disabled) {
+      background: #8a2f4c;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(159,58,90,0.3);
+    }
+
+    .btn-stop {
+      background: var(--surface2);
+      color: var(--ink2);
+      border: 1px solid var(--border2);
+    }
+    .btn-stop:hover:not(:disabled) {
+      background: var(--border);
+      transform: translateY(-1px);
+    }
 
     .btn-primary {
-      background: var(--accent);
+      background: var(--teal);
       color: white;
       width: 100%;
       justify-content: center;
       padding: 14px 24px;
-      font-size: 15px;
+      font-size: 14px;
       border-radius: 10px;
+      letter-spacing: 0.05em;
     }
-
-    .btn-primary:hover:not(:disabled) { background: #2563eb; transform: translateY(-1px); }
+    .btn-primary:hover:not(:disabled) {
+      background: #236358;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(42,124,111,0.3);
+    }
 
     .recorded-preview {
       margin-top: 20px;
-      background: var(--surface2);
-      border: 1px solid var(--border);
+      background: var(--teal-light);
+      border: 1px solid var(--teal-mid);
       border-radius: 10px;
       padding: 14px 16px;
       display: none;
@@ -157,12 +317,13 @@
     .recorded-preview.visible { display: block; }
 
     .preview-label {
-      font-size: 11px;
-      color: var(--muted);
-      font-family: 'Space Mono', monospace;
-      letter-spacing: 0.1em;
+      font-size: 10px;
+      color: var(--teal);
+      font-family: 'Jost', sans-serif;
+      letter-spacing: 0.15em;
       text-transform: uppercase;
       margin-bottom: 8px;
+      font-weight: 500;
     }
 
     audio { width: 100%; height: 36px; }
@@ -173,12 +334,50 @@
       gap: 12px;
       margin: 20px 0;
       color: var(--muted);
-      font-size: 12px;
-      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
     }
 
-    .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
 
+    /* URL input area */
+    .url-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px 28px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 16px rgba(28,25,23,0.04);
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 13px 16px;
+      background: var(--bg2);
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      color: var(--ink);
+      font-family: 'Jost', sans-serif;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      margin-bottom: 14px;
+    }
+
+    input[type="text"]::placeholder { color: var(--muted); }
+    input[type="text"]:focus {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(42,124,111,0.1);
+      background: white;
+    }
+
+    /* Status bar */
     .status-bar {
       background: var(--surface2);
       border: 1px solid var(--border);
@@ -186,30 +385,32 @@
       padding: 12px 16px;
       font-size: 13px;
       color: var(--muted);
-      font-family: 'Space Mono', monospace;
-      margin-bottom: 20px;
+      font-family: 'Jost', sans-serif;
+      margin-bottom: 24px;
       min-height: 44px;
       display: flex;
       align-items: center;
       gap: 10px;
+      transition: all 0.2s ease;
     }
 
-    .status-bar.active { color: var(--accent2); border-color: var(--accent2); }
-    .status-bar.success { color: var(--green); border-color: var(--green); }
-    .status-bar.error { color: var(--red); border-color: var(--red); }
+    .status-bar.active { color: var(--teal); border-color: var(--teal-mid); background: var(--teal-light); }
+    .status-bar.success { color: var(--green); border-color: var(--teal-mid); background: var(--green-light); }
+    .status-bar.error { color: var(--red); border-color: var(--rose-mid); background: var(--red-light); }
 
-    .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
     .dot.pulse { animation: pulse 1.2s ease-in-out infinite; }
-    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
 
+    /* Results */
     .results { display: none; }
     .results.visible { display: block; }
 
     /* Tabs */
     .tabs {
       display: flex;
-      gap: 8px;
-      margin-bottom: 16px;
+      gap: 4px;
+      margin-bottom: 20px;
       border-bottom: 1px solid var(--border);
       padding-bottom: 0;
     }
@@ -223,116 +424,167 @@
       border-bottom: 2px solid transparent;
       margin-bottom: -1px;
       transition: all 0.15s;
-      font-family: 'DM Sans', sans-serif;
+      font-family: 'Jost', sans-serif;
       background: none;
       border-top: none;
       border-left: none;
       border-right: none;
+      letter-spacing: 0.02em;
     }
 
-    .tab:hover { color: var(--text); }
-    .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .tab:hover { color: var(--ink2); }
+    .tab.active { color: var(--indigo); border-bottom-color: var(--indigo); }
 
     .tab-panel { display: none; }
     .tab-panel.active { display: block; }
 
+    /* Result cards */
     .result-card {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 24px;
-      margin-bottom: 16px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(28,25,23,0.04);
     }
 
     .result-body {
+      padding: 24px 28px;
       font-size: 14px;
-      line-height: 1.7;
-      color: var(--text);
+      line-height: 1.8;
+      color: var(--ink2);
     }
 
-    .result-body ul, .result-body ol { padding-left: 20px; margin-top: 8px; }
-    .result-body li { margin-bottom: 6px; line-height: 1.6; }
-    .result-body strong { color: #fff; font-weight: 600; }
+    .result-body h1, .result-body h2, .result-body h3 {
+      font-family: 'Libre Baskerville', serif;
+      color: var(--ink);
+      margin: 18px 0 10px;
+    }
+
     .result-body p { margin-bottom: 10px; }
+    .result-body ul, .result-body ol { padding-left: 20px; margin-bottom: 10px; }
+    .result-body li { margin-bottom: 6px; }
 
     /* Flashcards */
-    .flashcard-grid { display: flex; flex-direction: column; gap: 12px; }
-
-    .flashcard {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 18px 20px;
-      cursor: pointer;
-      transition: border-color 0.15s;
+    .flashcard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 14px;
     }
 
-    .flashcard:hover { border-color: var(--accent); }
+    .flashcard {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 22px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border-top: 3px solid var(--indigo);
+    }
+
+    .flashcard:hover {
+      box-shadow: 0 6px 24px rgba(61,79,124,0.12);
+      transform: translateY(-2px);
+    }
 
     .flashcard-question {
+      font-family: 'Libre Baskerville', serif;
       font-size: 14px;
+      color: var(--ink);
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+
+    .flashcard-hint {
+      font-size: 11px;
+      color: var(--indigo);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
       font-weight: 500;
-      color: var(--text);
-      margin-bottom: 4px;
+      opacity: 0.7;
     }
 
     .flashcard-answer {
-      font-size: 13px;
-      color: var(--accent2);
       display: none;
-      margin-top: 10px;
-      padding-top: 10px;
+      font-size: 13px;
+      color: var(--teal);
+      margin-top: 14px;
+      padding-top: 14px;
       border-top: 1px solid var(--border);
       line-height: 1.6;
     }
 
     .flashcard.revealed .flashcard-answer { display: block; }
-
-    .flashcard-hint {
-      font-size: 11px;
-      color: var(--muted);
-      font-family: 'Space Mono', monospace;
-      margin-top: 6px;
-    }
-
     .flashcard.revealed .flashcard-hint { display: none; }
 
-    /* Exam Tips */
+    /* Exam tips */
     .exam-tips { display: flex; flex-direction: column; gap: 10px; }
 
     .exam-tip {
       display: flex;
-      gap: 12px;
       align-items: flex-start;
-      background: var(--surface2);
+      gap: 16px;
+      background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 10px;
-      padding: 14px 16px;
+      padding: 18px 20px;
+      border-left: 3px solid var(--rose);
+      transition: box-shadow 0.2s;
     }
+
+    .exam-tip:hover { box-shadow: 0 4px 16px rgba(159,58,90,0.08); }
 
     .tip-number {
-      font-family: 'Space Mono', monospace;
-      font-size: 11px;
-      color: var(--yellow);
-      background: rgba(245, 158, 11, 0.1);
-      border-radius: 6px;
-      padding: 2px 8px;
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--rose);
+      font-weight: 600;
+      background: var(--rose-light);
+      border: 1px solid var(--rose-mid);
+      padding: 4px 8px;
+      border-radius: 4px;
       flex-shrink: 0;
-      margin-top: 2px;
+      margin-top: 1px;
     }
 
-    .tip-text { font-size: 14px; line-height: 1.6; color: var(--text); }
+    .tip-text {
+      font-size: 14px;
+      color: var(--ink2);
+      line-height: 1.65;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 28px 48px;
+      border-top: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: white;
+    }
   </style>
 </head>
 <body>
 
-<div class="container">
-  <header>
-    <div class="label">AI-Powered</div>
-    <h1>Lecture <span>Study Assistant</span></h1>
-    <p class="subtitle">Record your lecture — get a summary, flashcards, and exam tips instantly.</p>
-  </header>
+<div class="topnav">
+  <div class="topnav-brand">Study Assistant</div>
+  <div class="topnav-tag">AI Powered</div>
+</div>
 
+<div class="hero">
+  <div class="hero-bg-circle c1"></div>
+  <div class="hero-bg-circle c2"></div>
+  <div class="hero-label">Academic Intelligence</div>
+  <h1>Your <em>Lectures,</em><br>Fully Understood</h1>
+  <p class="hero-sub">Record or upload any lecture audio and receive a rich summary, flashcards, exam tips and a full transcript — instantly.</p>
+  <div class="hero-divider"></div>
+</div>
+
+<div class="main">
+
+  <div class="section-label">Step 01 — Record Audio</div>
   <div class="recorder-card">
     <div class="recorder-visual">
       <div class="waveform" id="waveform">
@@ -356,22 +608,20 @@
     </div>
 
     <div class="recorded-preview" id="recordedPreview">
-      <div class="preview-label">Recorded Audio</div>
+      <div class="preview-label">Recording Preview</div>
       <audio id="previewAudio" controls></audio>
     </div>
+  </div>
 
-    <div class="divider">or paste a URL</div>
-
+  <div class="section-label">Step 02 — Or Paste a URL</div>
+  <div class="url-card">
     <input
+      type="text"
       id="audioUrl"
-      style="width:100%;padding:12px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:16px;"
-      placeholder="https://example.com/lecture.wav"
-      onfocus="this.style.borderColor='var(--accent)'"
-      onblur="this.style.borderColor='var(--border)'"
+      placeholder="Paste a direct audio link — e.g. https://tmpfiles.org/dl/yourfile.wav"
     />
-
     <button class="btn btn-primary" id="btnProcess" onclick="processAudio()" disabled>
-      ✨ Analyse Lecture
+      ✦ Analyse Lecture
     </button>
   </div>
 
@@ -381,6 +631,7 @@
   </div>
 
   <div class="results" id="results">
+    <div class="section-label">Results</div>
     <div class="tabs">
       <button class="tab active" onclick="switchTab('summary')">📝 Summary</button>
       <button class="tab" onclick="switchTab('flashcards')">🃏 Flashcards</button>
@@ -408,7 +659,10 @@
       </div>
     </div>
   </div>
+
 </div>
+
+<div class="footer">AI Lecture Study Assistant &nbsp;·&nbsp; All rights reserved</div>
 
 <script>
   let mediaRecorder = null;
@@ -500,18 +754,13 @@
       const response = await fetch(webhookURL + "?audio_url=" + encodeURIComponent(audioUrl));
       const raw = await response.text();
 
-      // Extract transcript with regex
       const transcriptMatch = raw.match(/"transcript"\s*:\s*"((?:[^"\\]|\\.)*)"/s);
       const transcriptText = transcriptMatch ? transcriptMatch[1] : '';
 
-      // Extract groq_output — it's a JSON object embedded as a string value
-      // Find the value between "groq_output": " ... " carefully
       const groqStart = raw.indexOf('"groq_output"');
       let groq = {};
       if (groqStart !== -1) {
-        // Find the first { after groq_output key
         const objStart = raw.indexOf('{', groqStart);
-        // Find matching closing }
         let depth = 0, objEnd = -1;
         for (let i = objStart; i < raw.length; i++) {
           if (raw[i] === '{') depth++;
@@ -527,17 +776,13 @@
         }
       }
 
-      // Summary — handle both string and array formats
       let summaryContent = groq.summary || 'No summary returned.';
       if (Array.isArray(summaryContent)) {
         summaryContent = summaryContent.map(s => '- ' + s).join('\n');
       }
       document.getElementById('summary').innerHTML = marked.parse(summaryContent);
-
-      // Transcript
       document.getElementById('transcript').textContent = transcriptText || 'No transcript returned.';
 
-      // Flashcards
       const fcContainer = document.getElementById('flashcards');
       fcContainer.innerHTML = '';
       if (groq.flashcards && groq.flashcards.length) {
@@ -556,7 +801,6 @@
         fcContainer.innerHTML = '<div class="result-card"><div class="result-body">No flashcards generated.</div></div>';
       }
 
-      // Exam Tips
       const tipsContainer = document.getElementById('examtips');
       tipsContainer.innerHTML = '';
       if (groq.exam_tips && groq.exam_tips.length) {
