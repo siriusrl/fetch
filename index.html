@@ -564,6 +564,41 @@
       text-transform: uppercase;
       background: white;
     }
+
+    /* Language selector */
+    .lang-selector {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .lang-btn {
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: 1px solid var(--border2);
+      background: var(--surface2);
+      color: var(--ink2);
+      cursor: pointer;
+      font-family: 'Jost', sans-serif;
+      font-size: 13px;
+      font-weight: 400;
+      transition: all 0.15s;
+      letter-spacing: 0.02em;
+    }
+
+    .lang-btn:hover {
+      border-color: var(--teal);
+      color: var(--teal);
+      background: var(--teal-light);
+    }
+
+    .lang-btn.active {
+      border-color: var(--teal);
+      background: var(--teal-light);
+      color: var(--teal);
+      font-weight: 500;
+    }
   </style>
 </head>
 <body>
@@ -620,6 +655,14 @@
       id="audioUrl"
       placeholder="Paste a direct audio link — e.g. https://tmpfiles.org/dl/yourfile.wav"
     />
+    <div class="section-label" style="margin-top:16px;margin-bottom:10px;">Output Language</div>
+    <div class="lang-selector">
+      <button class="lang-btn active" onclick="selectLang(this, 'English')">English</button>
+      <button class="lang-btn" onclick="selectLang(this, 'Hindi')">हिन्दी</button>
+      <button class="lang-btn" onclick="selectLang(this, 'Telugu')">తెలుగు</button>
+      <button class="lang-btn" onclick="selectLang(this, 'Tamil')">தமிழ்</button>
+      <button class="lang-btn" onclick="selectLang(this, 'Marathi')">मराठी</button>
+    </div>
     <button class="btn btn-primary" id="btnProcess" onclick="processAudio()" disabled>
       ✦ Analyse Lecture
     </button>
@@ -666,10 +709,17 @@
 
 <script>
   let mediaRecorder = null;
+  let selectedLang = "English";
   let audioChunks = [];
   let recordedBlob = null;
   let timerInterval = null;
   let seconds = 0;
+
+  function selectLang(btn, lang) {
+    selectedLang = lang;
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
 
   function updateTimer() {
     seconds++;
@@ -751,7 +801,7 @@
 
     try {
       const webhookURL = "https://hook.eu1.make.com/foevhvrk28why9jksdvh12ftg9cr6blq";
-      const response = await fetch(webhookURL + "?audio_url=" + encodeURIComponent(audioUrl));
+      const response = await fetch(webhookURL + "?audio_url=" + encodeURIComponent(audioUrl) + "&language=" + encodeURIComponent(selectedLang));
       const raw = await response.text();
 
       const transcriptMatch = raw.match(/"transcript"\s*:\s*"((?:[^"\\]|\\.)*)"/s);
